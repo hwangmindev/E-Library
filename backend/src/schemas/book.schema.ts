@@ -17,7 +17,7 @@ export class Book {
   @Prop({ required: true })
   fileUrl: string;
 
-  @Prop({ default: '' })
+  @Prop({ default: '', required: true })
   coverImage: string;
 
   @Prop({ type: [String], defualt: [] })
