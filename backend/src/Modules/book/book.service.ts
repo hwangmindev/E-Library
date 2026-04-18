@@ -35,13 +35,16 @@ export class BookSerivice {
     };
   }
 
-  async findBookById(_id: string): Promise<Book | null> {
-    const book = this.bookModel.findById(_id);
+  async findBookById(_id: string): Promise<Book> {
+    // const book = this.bookModel.findById(_id);
+
+    const book = await this.bookModel.findByIdAndUpdate(
+      _id,
+      { $inc: { viewCount: 1 } },
+      { returnDocument: 'after' },
+    );
 
     if (!book) throw new NotFoundException('Book not found');
-
-    (await book).viewCount += 1;
-    (await book).save();
 
     return book;
   }
@@ -57,7 +60,7 @@ export class BookSerivice {
 
   async update(id: string, updateBookDto: UpdateBookDto) {
     const book = await this.bookModel.findByIdAndUpdate(id, updateBookDto, {
-      new: true,
+      returnDocument: 'after',
     });
 
     if (!book) {

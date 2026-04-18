@@ -12,10 +12,11 @@ import {
   UseInterceptors,
   BadRequestException,
   UploadedFiles,
+  UploadedFile,
 } from '@nestjs/common';
 import { BookSerivice } from './book.service';
 import { JwtAuthGuard } from 'src/common/guards/jwt-auth.guard';
-import { FileFieldsInterceptor } from '@nestjs/platform-express';
+import { FileFieldsInterceptor, FileInterceptor } from '@nestjs/platform-express';
 import { CreateBookDto } from './dto/create-book.dto';
 import { UpdateBookDto } from './dto/update-book.dto';
 import { Roles } from 'src/common/decorators/roles.decorator';
@@ -102,7 +103,26 @@ export class BookController {
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('admin')
   @Patch(':id')
-  update(@Param('id') id: string, @Body() dto: UpdateBookDto) {
+  @UseInterceptors(
+    FileInterceptor('coverImage', {
+      storage: diskStorage({
+        destination: './uploads/images',
+        filename: (req, file, cb) => {
+          const unique = Date.now() + '-' + Math.random();
+          cb(null, unique + extname(file.originalname));
+        },
+      }),
+    }),
+  )
+  update(
+    @Param('id') id: string,
+    @UploadedFile() file: Express.Multer.File,
+    @Body() dto: UpdateBookDto,
+  ) {
+    if (file) {
+      dto.coverImage = `/uploads/images/${file.filename}`;
+    }
+
     return this.bookService.update(id, dto);
   }
 
@@ -122,8 +142,8 @@ export class BookController {
     return this.bookService.findAllBook(Number(page), Number(limit), search);
   }
 
-  @Get(':bookId')
-  getBook(@Param('bookId') bookId: string) {
-    return this.bookService.findBookById(bookId);
+  @Get(':id')
+  getBook(@Param('id') id: string) {
+    return this.bookService.findBookById(id);
   }
 }
