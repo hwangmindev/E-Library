@@ -1,11 +1,13 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import axios from "axios";
+import { useEffect, useState, useRef } from "react";
 import { useRouter } from "next/navigation";
+import { getBookById, updateBook } from "@/lib/api/book";
+import toast from "react-hot-toast";
 
 export default function EditBookForm({ id }: { id: string }) {
   const router = useRouter();
+  const fetched = useRef(false);
 
   const [title, setTitle] = useState("");
   const [author, setAuthor] = useState("");
@@ -19,10 +21,11 @@ export default function EditBookForm({ id }: { id: string }) {
 
   // 📥 Fetch existing book
   useEffect(() => {
-    const fetchBook = async () => {
-      const res = await axios.get(`http://127.0.0.1:4000/books/${id}`);
+    if (fetched.current) return;
+    fetched.current = true;
 
-      const book = res.data;
+    const fetchBook = async () => {
+      const book = await getBookById(id);
 
       setTitle(book.title);
       setAuthor(book.author);
@@ -40,8 +43,6 @@ export default function EditBookForm({ id }: { id: string }) {
   };
 
   const handleUpdate = async () => {
-    const token = localStorage.getItem("token");
-
     const formData = new FormData();
     formData.append("title", title);
     formData.append("author", author);
@@ -54,16 +55,13 @@ export default function EditBookForm({ id }: { id: string }) {
     try {
       setLoading(true);
 
-      await axios.patch(`http://127.0.0.1:4000/books/${id}`, formData, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      await updateBook(id, formData);
+
+      toast.success("Edited Book");
 
       router.push("/dashboard");
     } catch (err) {
-      console.error(err);
-      alert("Update failed");
+      toast.error("Updated failed");
     } finally {
       setLoading(false);
     }
@@ -115,6 +113,7 @@ export default function EditBookForm({ id }: { id: string }) {
         type="file"
         accept="image/*"
         onChange={(e) => e.target.files && handleImageChange(e.target.files[0])}
+        className="cursor-pointer"
       />
 
       {preview && (

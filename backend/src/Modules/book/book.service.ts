@@ -36,8 +36,6 @@ export class BookSerivice {
   }
 
   async findBookById(_id: string): Promise<Book> {
-    // const book = this.bookModel.findById(_id);
-
     const book = await this.bookModel.findByIdAndUpdate(
       _id,
       { $inc: { viewCount: 1 } },

@@ -4,6 +4,7 @@ import { useState } from "react";
 import axios from "axios";
 import { useRouter } from "next/navigation";
 import { useDropzone } from "react-dropzone";
+import toast from "react-hot-toast";
 
 export default function BookUploadForm() {
   const router = useRouter();
@@ -87,10 +88,13 @@ export default function BookUploadForm() {
         },
       });
 
+      toast.success("Book uploaded successfully");
+
       // 🚀 redirect after success
       router.push("/dashboard");
     } catch (err) {
       console.error(err);
+      toast.error("Uploaded failed");
     } finally {
       setLoading(false);
     }

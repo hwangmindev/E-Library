@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "../globals.css";
 import Navbar from "@/components/layout/Navbar";
 import AuthCookieSync from "@/components/auth/AuthCookieSync";
+import { Toaster } from "react-hot-toast";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -32,7 +33,10 @@ export default function RootLayout({
         <div className="min-h-screen flex flex-col">
           <AuthCookieSync />
           <Navbar />
-          <main className="min-h-full flex flex-col">{children}</main>
+          <main className="min-h-full flex flex-col">
+            {children}
+            <Toaster position="top-right" />
+          </main>
         </div>
       </body>
     </html>

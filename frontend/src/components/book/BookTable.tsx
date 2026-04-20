@@ -1,7 +1,9 @@
 "use client";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { deletBook, getBooks } from "@/lib/api/book";
+import { deleteBook, getBooks } from "@/lib/api/book";
+import toast from "react-hot-toast";
+import { error } from "console";
 
 type Book = {
   _id: string;
@@ -42,12 +44,17 @@ export default function BookTable() {
   const handleDelete = async (id: string) => {
     if (!confirm("Delete this book?")) return;
 
-    await deletBook(id);
-
-    if (books.length === 1 && page > 1) {
-      setPage(page - 1);
-    } else {
-      fetchBooks();
+    try {
+      const res = await deleteBook(id);
+      toast.success(res.data.message);
+    } catch (err) {
+      toast.error("Deleted failed");
+    } finally {
+      if (books.length === 1 && page > 1) {
+        setPage(page - 1);
+      } else {
+        fetchBooks();
+      }
     }
   };
 

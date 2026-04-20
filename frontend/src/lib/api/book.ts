@@ -8,9 +8,24 @@ export const getBooks = async (page: number, limit: number, search: string) => {
   return res.data;
 };
 
-export const deletBook = async (id: string) => {
+export const deleteBook = async (id: string) => {
   const token = localStorage.getItem(AUTH_TOKEN_STORAGE_KEY);
-  await API.delete(`/books/${id}`, {
+  const res = await API.delete(`/books/${id}`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+  return res;
+};
+
+export const getBookById = async (id: string) => {
+  const res = await API.get(`/books/${id}`);
+  return res.data;
+};
+
+export const updateBook = async (id: string, data: {}) => {
+  const token = localStorage.getItem(AUTH_TOKEN_STORAGE_KEY);
+  await API.patch(`/books/${id}`, data, {
     headers: {
       Authorization: `Bearer ${token}`,
     },
